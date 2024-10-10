@@ -14,6 +14,7 @@
 		481785C32CB8192000010429 /* WeatherAndStoriesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481785C22CB8192000010429 /* WeatherAndStoriesTests.swift */; };
 		481785CD2CB8192000010429 /* WeatherAndStoriesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481785CC2CB8192000010429 /* WeatherAndStoriesUITests.swift */; };
 		481785CF2CB8192000010429 /* WeatherAndStoriesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481785CE2CB8192000010429 /* WeatherAndStoriesUITestsLaunchTests.swift */; };
+		481B3A2F2CB81C34004F030F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 481B3A2E2CB81C34004F030F /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				481B3A2F2CB81C34004F030F /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +147,9 @@
 			dependencies = (
 			);
 			name = WeatherAndStories;
+			packageProductDependencies = (
+				481B3A2E2CB81C34004F030F /* ComposableArchitecture */,
+			);
 			productName = WeatherAndStories;
 			productReference = 481785AD2CB8191E00010429 /* WeatherAndStories.app */;
 			productType = "com.apple.product-type.application";
@@ -217,6 +222,9 @@
 				Base,
 			);
 			mainGroup = 481785A42CB8191E00010429;
+			packageReferences = (
+				481B3A2D2CB81C34004F030F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			productRefGroup = 481785AE2CB8191E00010429 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -617,6 +625,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		481B3A2D2CB81C34004F030F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		481B3A2E2CB81C34004F030F /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 481B3A2D2CB81C34004F030F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 481785A52CB8191E00010429 /* Project object */;
 }
