@@ -19,12 +19,12 @@ struct Weather: Codable, Equatable {
 
 extension Weather {
     struct Units: Codable, Equatable {
-        let temperature2m: String
-        let windSpeed10m: String
+        let temperature: String
+        let windSpeed: String
         
         enum CodingKeys: String, CodingKey {
-            case temperature2m = "temperature_2m"
-            case windSpeed10m = "wind_speed_10m"
+            case temperature = "temperature_2m"
+            case windSpeed = "wind_speed_10m"
         }
     }
     

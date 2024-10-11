@@ -111,38 +111,67 @@ struct WeatherScreen: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Weather screen")
-                if store.locationAuthorizationStatus == .unknown {
-                    Text("Authorization status - UNKNOWN")
-                } else {
-                    Text("Authorization status - APPROVED OR DENIED")
-                }
-                
-                if let location = store.location {
-                    Text("---")
-                    Text(location.cityName ?? "Unknown city")
-                    Text("---")
-                }
-                
-                if let weather = store.weather {
-                    Text("Weather")
-                    Text("\(weather.current.time)")
-                    Text("\(weather.current.temperature)")
-                    Text("\(weather.current.windSpeed)")
-                    Text("---")
-                }
-                Spacer()
-                Button {
-                    store.send(.checkStoriesButtonTapped)
-                } label: {
-                    Text("Check new stories")
-                }
-            }
-            .opacity(store.isLoading ? 0 : 1)
-            .overlay {
-                if store.isLoading {
-                    ProgressView()
+            ZStack {
+                Color.blue.opacity(0.7)
+                    .edgesIgnoringSafeArea(.all)
+
+                    VStack {
+                        Text("Current weather")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+//                            .foregroundColor(.white)
+                            .padding(.vertical, 20)
+                        
+                        VStack(spacing: 10) {
+                            if let location = store.location {
+                                Text(location.cityName ?? "Unknown city")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .padding(.bottom, 20)
+                            }
+                            
+                            if let weather = store.weather {
+                                Text(weather.current.time.toFormattedDateTime())
+                                
+                                HStack(spacing: 5) {
+                                    Text(String(format: "Temperature: %.1f", weather.current.temperature))
+                                    Text(weather.units.temperature)
+                                }
+                                
+                                HStack(spacing: 5) {
+                                    Text(String(format: "Wind Speed: %.1f", weather.current.windSpeed))
+                                    Text(weather.units.windSpeed)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .padding(.top, 40)
+                        
+                        Spacer()
+                        
+                        Button {
+                            store.send(.checkStoriesButtonTapped)
+                        } label: {
+                            Text("Check new weather stories")
+                                .font(.headline)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        .padding(.bottom, 20)
+                    }
+                    .padding(.horizontal, 20)
+                    .frame(maxHeight: .infinity)
+                .opacity(store.isLoading ? 0 : 1)
+                .overlay {
+                    if store.isLoading {
+                        ProgressView()
+                    }
                 }
             }
         }
