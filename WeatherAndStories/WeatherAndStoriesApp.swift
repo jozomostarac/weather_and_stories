@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct WeatherAndStoriesApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            WeatherScreen(
+                store: Store(
+                    initialState: WeatherFeature.State()
+                ) {
+                    WeatherFeature()
+                }
+            )
         }
     }
 }
