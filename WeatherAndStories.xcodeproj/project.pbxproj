@@ -16,6 +16,7 @@
 		481B3A2F2CB81C34004F030F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 481B3A2E2CB81C34004F030F /* ComposableArchitecture */; };
 		481B3A352CB81D62004F030F /* WeatherScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A342CB81D62004F030F /* WeatherScreen.swift */; };
 		481B3A372CB81D70004F030F /* StoriesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A362CB81D70004F030F /* StoriesScreen.swift */; };
+		481B3A3B2CB8F039004F030F /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A3A2CB8F039004F030F /* LocationService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		481785CE2CB8192000010429 /* WeatherAndStoriesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAndStoriesUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		481B3A342CB81D62004F030F /* WeatherScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherScreen.swift; sourceTree = "<group>"; };
 		481B3A362CB81D70004F030F /* StoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesScreen.swift; sourceTree = "<group>"; };
+		481B3A3A2CB8F039004F030F /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 		481785AF2CB8191E00010429 /* WeatherAndStories */ = {
 			isa = PBXGroup;
 			children = (
+				481B3A392CB8F02D004F030F /* Services */,
 				481B3A382CB8255D004F030F /* Features */,
 				481785B02CB8191E00010429 /* WeatherAndStoriesApp.swift */,
 				481785B42CB8191F00010429 /* Assets.xcassets */,
@@ -156,6 +159,22 @@
 				481B3A322CB81D4C004F030F /* Weather */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		481B3A392CB8F02D004F030F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				481B3A3D2CB8FA7E004F030F /* Location */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		481B3A3D2CB8FA7E004F030F /* Location */ = {
+			isa = PBXGroup;
+			children = (
+				481B3A3A2CB8F039004F030F /* LocationService.swift */,
+			);
+			path = Location;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -296,6 +315,7 @@
 			files = (
 				481B3A372CB81D70004F030F /* StoriesScreen.swift in Sources */,
 				481B3A352CB81D62004F030F /* WeatherScreen.swift in Sources */,
+				481B3A3B2CB8F039004F030F /* LocationService.swift in Sources */,
 				481785B12CB8191E00010429 /* WeatherAndStoriesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -460,6 +480,10 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires access to your location to display current weather conditions.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -498,6 +522,10 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "This app requires access to your location to display current weather conditions.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires access to your location to display current weather conditions.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
