@@ -16,20 +16,21 @@ enum LocationAuthorizationStatus: Equatable {
 struct Location: Equatable, Codable {
     let lat: Double
     let long: Double
+    let cityName: String?
 }
 
 protocol LocationService {
     func requestPermission()
     func requestLocation()
-    var locationUpdates: AnyPublisher<Location, Never> { get }
-    var authorizationStatusUpdates: AnyPublisher<LocationAuthorizationStatus, Never> { get }
+    var locationUpdates: AnyPublisher<Location, Error> { get }
+    var authorizationStatusUpdates: AnyPublisher<LocationAuthorizationStatus, Error> { get }
 }
 
 class LocationServiceImpl: NSObject, LocationService, CLLocationManagerDelegate {
     
     private let locationManager = CLLocationManager()
-    private let locationUpdateSubject = PassthroughSubject<CLLocation, Never>()
-    private let authorizationStatusSubject = PassthroughSubject<CLAuthorizationStatus, Never>()
+    private let locationUpdateSubject = PassthroughSubject<(CLLocation, cityName: String?), Error>()
+    private let authorizationStatusSubject = PassthroughSubject<CLAuthorizationStatus, Error>()
     
     override init() {
         super.init()
@@ -44,13 +45,19 @@ class LocationServiceImpl: NSObject, LocationService, CLLocationManagerDelegate 
         locationManager.requestLocation()
     }
     
-    var locationUpdates: AnyPublisher<Location, Never> {
+    var locationUpdates: AnyPublisher<Location, Error> {
         locationUpdateSubject
-            .map { Location(lat: Double($0.coordinate.latitude), long: Double($0.coordinate.longitude)) }
+            .map {
+                Location(
+                    lat: Double($0.0.coordinate.latitude),
+                    long: Double($0.0.coordinate.longitude),
+                    cityName: $0.1
+                )
+            }
             .eraseToAnyPublisher()
     }
     
-    var authorizationStatusUpdates: AnyPublisher<LocationAuthorizationStatus, Never> {
+    var authorizationStatusUpdates: AnyPublisher<LocationAuthorizationStatus, Error> {
         authorizationStatusSubject
             .map { status in
                 switch status {
@@ -67,12 +74,29 @@ class LocationServiceImpl: NSObject, LocationService, CLLocationManagerDelegate 
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
-            locationUpdateSubject.send(location)
+            getCityName(from: location) { [weak self] cityName in
+                self?.locationUpdateSubject.send((location, cityName))
+            }
         }
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatusSubject.send(manager.authorizationStatus)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        locationUpdateSubject.send(completion: .failure(error))
+    }
+    
+    private func getCityName(from location: CLLocation, completion: @escaping (String?) -> Void) {
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { placemarks, _ in
+            if let placemark = placemarks?.first, let city = placemark.locality {
+                completion(city)
+                return
+            }
+            completion(nil)
+        }
     }
 }
 
