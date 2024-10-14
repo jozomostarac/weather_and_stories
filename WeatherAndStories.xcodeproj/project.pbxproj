@@ -20,6 +20,7 @@
 		481B3A412CB903D0004F030F /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A402CB903D0004F030F /* WeatherService.swift */; };
 		481B3A452CB95A9F004F030F /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A442CB95A9F004F030F /* Weather.swift */; };
 		481B3A482CB97640004F030F /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A472CB97640004F030F /* Date+Extensions.swift */; };
+		481B3A4B2CBCF87D004F030F /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481B3A4A2CBCF87D004F030F /* Story.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		481B3A402CB903D0004F030F /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
 		481B3A442CB95A9F004F030F /* Weather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
 		481B3A472CB97640004F030F /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		481B3A4A2CBCF87D004F030F /* Story.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +157,7 @@
 		481B3A332CB81D54004F030F /* Stories */ = {
 			isa = PBXGroup;
 			children = (
+				481B3A492CBCF874004F030F /* Model */,
 				481B3A362CB81D70004F030F /* StoriesScreen.swift */,
 			);
 			path = Stories;
@@ -208,6 +211,14 @@
 				481B3A472CB97640004F030F /* Date+Extensions.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		481B3A492CBCF874004F030F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				481B3A4A2CBCF87D004F030F /* Story.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -353,6 +364,7 @@
 				481785B12CB8191E00010429 /* WeatherAndStoriesApp.swift in Sources */,
 				481B3A452CB95A9F004F030F /* Weather.swift in Sources */,
 				481B3A412CB903D0004F030F /* WeatherService.swift in Sources */,
+				481B3A4B2CBCF87D004F030F /* Story.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
