@@ -10,17 +10,22 @@ import ComposableArchitecture
 
 @Reducer
 struct StoriesFeature {
+    @Dependency(\.continuousClock) var clock
+    private let storyDuration = 3.0 // seconds
+    
     @ObservableState
     struct State: Equatable {
         var isLoading = false
         var stories: [Story] = []
-        var currentStoryIndex = 0
+        var activeStory: Story?
+        var progressState: [Story: Double] = [:]
     }
     
     enum Action {
         case onAppear
         case loadStories
         case storiesLoaded([Story])
+        case timerTick
         case nextStory
         case previousStory
     }
@@ -39,23 +44,51 @@ struct StoriesFeature {
             case .storiesLoaded(let stories):
                 state.isLoading = false
                 state.stories = stories
-                state.currentStoryIndex = 0
+                state.progressState = Dictionary(uniqueKeysWithValues: stories.map { ($0, 0.0) })
+                state.activeStory = stories.first
+                return .run(operation: { send in
+                    for await _ in self.clock.timer(interval: .milliseconds(10)) {
+                      await send(.timerTick)
+                    }
+                })
+            case .timerTick:
+                guard let activeStory = state.activeStory else { return .none }
+                let activeStoryProgress = state.progressState[activeStory] ?? 0
+                
+                state.progressState[activeStory] = activeStoryProgress + 1.0/(storyDuration*100)
+                
+                let newActiveStoryProgress = state.progressState[activeStory] ?? 0
+                print(newActiveStoryProgress)
+                
+                if newActiveStoryProgress >= 1.0 {
+                    state.progressState[activeStory] = 1.0
+                    return .send(.nextStory)
+                }
+                
+                return .none
             case .nextStory:
-                guard state.currentStoryIndex < (state.stories.count - 1) else {
-                    state.currentStoryIndex = state.stories.count - 1
+                guard let activeStory = state.activeStory else { return .none }
+                let currentIndex = state.stories.firstIndex(where: { $0 == activeStory }) ?? 0
+                guard currentIndex < (state.stories.count - 1) else {
                     return .none
                 }
-                state.currentStoryIndex += 1
+                state.progressState[activeStory] = 1.0
+                state.activeStory = state.stories[currentIndex + 1]
                 return .none
             case .previousStory:
-                guard state.currentStoryIndex > 0 else {
-                    state.currentStoryIndex = 0
+                guard let activeStory = state.activeStory else { return .none }
+                let currentIndex = state.stories.firstIndex(where: { $0 == activeStory }) ?? 0
+                guard currentIndex > 0 else {
                     return .none
                 }
-                state.currentStoryIndex -= 1
+                state.progressState[activeStory] = 0
+                
+                let previousStory = state.stories[currentIndex - 1]
+                state.progressState[previousStory] = 0
+                state.activeStory = previousStory
+                
                 return .none
             }
-            return .none
         }
     }
 }
@@ -63,10 +96,6 @@ struct StoriesFeature {
 struct StoriesScreen: View {
     @Bindable var store:  StoreOf<StoriesFeature>
     @Environment(\.presentationMode) var presentationMode
-    
-    var currentStory: Story {
-        store.stories[store.currentStoryIndex]
-    }
     
     var body: some View {
         VStack(spacing: 10) {
@@ -79,44 +108,53 @@ struct StoriesScreen: View {
                         }
                 }
                 HStack {
-                    ForEach(1..<6) { _ in
-                        StoryProgressBar()
+                    ForEach(store.stories, id: \.id) { story in
+                        let currentStoryProgress = store.progressState[story] ?? 0
+                        StoryProgressBar(progress: currentStoryProgress)
                     }
                 }
                 .padding(.horizontal, 10)
             
-            Image(currentStory.image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: UIScreen.main.bounds.width)
-                .swipeActions {
-                    <#code#>
-                }
+            if let activeStory = store.activeStory {
+                Image(activeStory.image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: UIScreen.main.bounds.width)
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                if value.translation.width < 0 {
+                                    store.send(.nextStory)
+                                } else if value.translation.width > 0 {
+                                    store.send(.previousStory)
+                                }
+                            }
+                    )
+            }
+        }
+        .onAppear(perform: { store.send(.onAppear) })
+        .opacity(store.isLoading ? 0 : 1)
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
         }
     }
 }
 
 struct StoryProgressBar: View {
-    @State private var progress = 0.0
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let progress: Double
     
     var body: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.gray.opacity(0.25)) // Background Rectangle
-            .frame(height: 10)
+        RoundedRectangle(cornerRadius: 2)
+            .fill(Color.gray.opacity(0.25))
+            .frame(height: 4)
             .overlay(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.blue) // Foreground Rectangle
-                    .frame(width: CGFloat(progress), height: 10)
-                    .animation(.linear(duration: 1), value: progress) // Animate width change
-            }
-            .onReceive(timer) { _ in
-                if progress < 100 {
-                    withAnimation {
-                        progress += 20 // Increment progress
-                    }
+                GeometryReader { geo in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.gray)
+                        .frame(width: geo.size.width * progress, height: 4)
                 }
             }
-            .frame(maxWidth: .infinity) // Ensure it stretches to the parent width
     }
 }

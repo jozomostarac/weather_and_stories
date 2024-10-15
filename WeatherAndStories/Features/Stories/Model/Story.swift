@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Story: Equatable {
+struct Story: Equatable, Hashable {
     let id: String
     let image: String
 }
