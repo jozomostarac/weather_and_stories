@@ -11,7 +11,10 @@ import ComposableArchitecture
 @Reducer
 struct StoriesFeature {
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.storiesService) var storiesService
+    
     private let storyDuration = 3.0 // seconds
+    private let storyPlaybackTimerId = "storyPlaybackTimerId"
     
     @ObservableState
     struct State: Equatable {
@@ -19,6 +22,7 @@ struct StoriesFeature {
         var stories: [Story] = []
         var activeStory: Story?
         var progressState: [Story: Double] = [:]
+        var isAutoPlaying = true
     }
     
     enum Action {
@@ -28,6 +32,9 @@ struct StoriesFeature {
         case timerTick
         case nextStory
         case previousStory
+        case startAutoPlay
+        case stopAutoPlay
+        case onScreenTap
     }
     
     var body: some ReducerOf<Self> {
@@ -38,19 +45,19 @@ struct StoriesFeature {
                 return .send(.loadStories)
             case .loadStories:
                 return .run { send in
-                    try? await Task.sleep(for: .seconds(1))
-                    await send(.storiesLoaded(Story.mockedList))
+                    do {
+                        let stories = try await storiesService.getStories()
+                        await send(.storiesLoaded(stories))
+                    } catch {
+                        print(error)
+                    }
                 }
             case .storiesLoaded(let stories):
                 state.isLoading = false
                 state.stories = stories
                 state.progressState = Dictionary(uniqueKeysWithValues: stories.map { ($0, 0.0) })
                 state.activeStory = stories.first
-                return .run(operation: { send in
-                    for await _ in self.clock.timer(interval: .milliseconds(10)) {
-                      await send(.timerTick)
-                    }
-                })
+                return .send(.startAutoPlay)
             case .timerTick:
                 guard let activeStory = state.activeStory else { return .none }
                 let activeStoryProgress = state.progressState[activeStory] ?? 0
@@ -88,6 +95,19 @@ struct StoriesFeature {
                 state.activeStory = previousStory
                 
                 return .none
+            case .startAutoPlay:
+                state.isAutoPlaying = true
+                return .run(operation: { send in
+                    for await _ in self.clock.timer(interval: .milliseconds(10)) {
+                      await send(.timerTick)
+                    }
+                })
+                .cancellable(id: storyPlaybackTimerId)
+            case .stopAutoPlay:
+                state.isAutoPlaying = false
+                return .cancel(id: storyPlaybackTimerId)
+            case .onScreenTap:
+                return state.isAutoPlaying ? .send(.stopAutoPlay) : .send(.startAutoPlay)
             }
         }
     }
@@ -110,7 +130,7 @@ struct StoriesScreen: View {
                 HStack {
                     ForEach(store.stories, id: \.id) { story in
                         let currentStoryProgress = store.progressState[story] ?? 0
-                        StoryProgressBar(progress: currentStoryProgress)
+                        StoryProgressBarView(progress: currentStoryProgress)
                     }
                 }
                 .padding(.horizontal, 10)
@@ -130,6 +150,9 @@ struct StoriesScreen: View {
                                 }
                             }
                     )
+                    .onTapGesture {
+                        store.send(.onScreenTap)
+                    }
             }
         }
         .onAppear(perform: { store.send(.onAppear) })
@@ -139,22 +162,5 @@ struct StoriesScreen: View {
                 ProgressView()
             }
         }
-    }
-}
-
-struct StoryProgressBar: View {
-    let progress: Double
-    
-    var body: some View {
-        RoundedRectangle(cornerRadius: 2)
-            .fill(Color.gray.opacity(0.25))
-            .frame(height: 4)
-            .overlay(alignment: .leading) {
-                GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.gray)
-                        .frame(width: geo.size.width * progress, height: 4)
-                }
-            }
     }
 }

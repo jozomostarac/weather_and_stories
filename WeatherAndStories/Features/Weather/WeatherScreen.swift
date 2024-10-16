@@ -17,6 +17,7 @@ struct WeatherFeature {
     
     @ObservableState
     struct State: Equatable {
+        @Presents var errorAlert: AlertState<Action.Alert>?
         @Presents var destination: Destination.State?
         var isLoading = false
         var locationAuthorizationStatus: LocationAuthorizationStatus = .unknown
@@ -25,8 +26,9 @@ struct WeatherFeature {
     }
     
     enum Action {
-        case onAppear
+        case errorAlert(PresentationAction<Alert>)
         case destination(PresentationAction<Destination.Action>)
+        case onAppear
         case checkStoriesButtonTapped
         case requestLocation
         case locationUpdated(Location)
@@ -34,6 +36,11 @@ struct WeatherFeature {
         case getWeather
         case weatherUpdated(Weather)
         case error(Error)
+        
+        @CasePathable
+        enum Alert {
+          case okButtonTapped
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -90,11 +97,23 @@ struct WeatherFeature {
                 return .none
             case .error(let error):
                 state.isLoading = false
-                print(error)
-                // show error
+                state.errorAlert = AlertState {
+                    TextState(error.localizedDescription)
+                } actions: {
+                  ButtonState(action: .okButtonTapped) {
+                    TextState("OK")
+                  }
+                }
+                return .none
+            case .errorAlert(.presented(.okButtonTapped)):
+                state.errorAlert = nil
+                return .none
+            case .errorAlert(.dismiss):
+                state.errorAlert = nil
                 return .none
             }
         }
+        .ifLet(\.$errorAlert, action: \.errorAlert)
         .ifLet(\.$destination, action: \.destination)
     }
 }
@@ -119,7 +138,6 @@ struct WeatherScreen: View {
                         Text("Current weather")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-//                            .foregroundColor(.white)
                             .padding(.vertical, 20)
                         
                         VStack(spacing: 10) {
@@ -142,6 +160,8 @@ struct WeatherScreen: View {
                                     Text(String(format: "Wind Speed: %.1f", weather.current.windSpeed))
                                     Text(weather.units.windSpeed)
                                 }
+                            } else {
+                                Text("No data available")
                             }
                         }
                         .padding()
@@ -176,6 +196,7 @@ struct WeatherScreen: View {
             }
         }
         .onAppear(perform: { store.send(.onAppear) })
+        .alert($store.scope(state: \.errorAlert, action: \.errorAlert))
         .sheet(
             item: $store.scope(state: \.destination?.stories, action: \.destination.stories)
         ) { storiesStore in
