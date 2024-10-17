@@ -21,7 +21,7 @@ struct StoriesServiceImpl: StoriesService {
 
 // MARK: - TCA Dependencies
 
-private enum StoriesServiceKey: DependencyKey {
+enum StoriesServiceKey: DependencyKey {
     static let liveValue: StoriesService = StoriesServiceImpl()
 }
 
@@ -30,4 +30,18 @@ extension DependencyValues {
         get { self[StoriesServiceKey.self] }
         set { self[StoriesServiceKey.self] = newValue }
     }
+}
+
+
+// MARK: - Testing
+
+struct MockStoriesService: StoriesService {
+    func getStories() async throws -> [Story] {
+        try await Task.sleep(for: .seconds(1))
+        return Story.mockedList
+    }
+}
+
+extension StoriesServiceKey: TestDependencyKey {
+    static let testValue: StoriesService = MockStoriesService()
 }

@@ -58,3 +58,19 @@ extension DependencyValues {
         set { self[WeatherServiceKey.self] = newValue }
     }
 }
+
+// MARK: - Testing
+
+struct MockWeatherService: WeatherService {
+    func getWeather(forLocation location: Location) async throws -> Weather {
+        try await Task.sleep(for: .seconds(1))
+        return Weather(
+            units: .init(temperature: "20", windSpeed: "2"),
+            current: .init(time: .now, temperature: 20, windSpeed: 2)
+        )
+    }
+}
+
+extension WeatherServiceKey: TestDependencyKey {
+    static let testValue: WeatherService = MockWeatherService()
+}
