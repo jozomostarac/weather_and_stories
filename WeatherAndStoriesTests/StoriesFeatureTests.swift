@@ -9,7 +9,7 @@ import XCTest
 import ComposableArchitecture
 @testable import WeatherAndStories
 
-final class WeatherAndStoriesTests: XCTestCase {
+final class StoriesFeatureTests: XCTestCase {
     var store: TestStore<StoriesFeature.State, StoriesFeature.Action>!
 
     @MainActor
@@ -92,7 +92,8 @@ final class WeatherAndStoriesTests: XCTestCase {
         await clock.advance(by: .seconds(1))
         
         // Pause auto play
-        await store.send(.onScreenTap) {
+        await store.send(\.onScreenTap)
+        await store.receive(\.stopAutoPlay) {
             $0.isAutoPlaying = false
         }
         
@@ -100,7 +101,8 @@ final class WeatherAndStoriesTests: XCTestCase {
         await clock.advance(by: .seconds(10))
         
         // Restart auto play and check if the same story is still active
-        await store.send(.onScreenTap) {
+        await store.send(\.onScreenTap)
+        await store.receive(\.startAutoPlay) {
             $0.isAutoPlaying = true
             $0.activeStory = $0.stories[0]
         }
